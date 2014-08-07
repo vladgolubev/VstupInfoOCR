@@ -20,7 +20,6 @@ public class ImgProc {
     private int height;
     private int rowNumber;
 
-    private String filename;
     private BufferedImage image;
 
     public ImgProc(String filename) throws IOException {
@@ -87,17 +86,6 @@ public class ImgProc {
         return bi;
     }
 
-    private static int[] getPixelData(BufferedImage img, int x, int y) {
-        int argb = img.getRGB(x, y);
-
-        int rgb[] = new int[]{
-                (argb >> 16) & 0xff, //red
-                (argb >> 8) & 0xff, //green
-                (argb) & 0xff  //blue
-        };
-
-        return rgb;
-    }
 
     public static int[][][] getPixelsRGB(BufferedImage img) {
         int[][][] pixelData = new int[img.getWidth()][img.getHeight()][3];
@@ -128,5 +116,17 @@ public class ImgProc {
         g.drawImage(img, 0, 0, null);
         g.dispose();
         return image;
+    }
+
+    private static int[] getPixelData(BufferedImage img, int x, int y) {
+        int argb = img.getRGB(x, y);
+
+        int rgb[] = new int[]{
+                (argb >> 16) & 0xff, //red
+                (argb >> 8) & 0xff, //green
+                (argb) & 0xff  //blue
+        };
+
+        return rgb;
     }
 }
