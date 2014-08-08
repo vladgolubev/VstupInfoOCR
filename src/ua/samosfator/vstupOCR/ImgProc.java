@@ -9,7 +9,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +46,7 @@ public class ImgProc {
 
     public static void writeImg(BufferedImage img, String filename) {
         try {
-            ImageIO.write(img, "png", new File(filename + ".png"));
+            ImageIO.write(img, "png", new BufferedOutputStream(new FileOutputStream(new File(filename + ".png")), 256 * 1024));
         } catch (IOException e) {
             e.printStackTrace();
         }
