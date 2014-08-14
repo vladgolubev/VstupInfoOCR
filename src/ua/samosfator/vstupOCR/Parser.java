@@ -104,28 +104,28 @@ public class Parser {
     }
 
     private void parseCell(String raw, int i) {
-        raw = cleanUpRaw(raw);
+        raw = Cleanup.basicCleaning(raw);
         entrant.setNumber(Entrant.n);
 
         switch (i) {
             case 1: {
-                entrant.setName(cleanUpName(raw));
+                entrant.setName(Cleanup.name(raw));
                 break;
             }
             case 2: {
-                entrant.setScore(cleanUpScore(raw));
+                entrant.setScore(Cleanup.score(raw));
                 break;
             }
             case 3: {
-                entrant.setCertificate(cleanUpCertificate(raw));
+                entrant.setCertificate(Cleanup.certificate(raw));
                 break;
             }
             case 4: {
-                entrant.setZno(cleanUpZno(raw));
+                entrant.setZno(Cleanup.zno(raw));
                 break;
             }
             case 5: {
-                entrant.setExam(cleanUpExam(raw));
+                entrant.setExam(Cleanup.exam(raw));
                 break;
             }
             case 6: {
@@ -184,98 +184,5 @@ public class Parser {
 
     private BufferedImage cropNumberCell(BufferedImage numberCell) {
         return numberCell.getSubimage(0, 22, numberCell.getWidth(), 15);
-    }
-
-    private String cleanUpRaw(String raw) {
-        return raw.replaceAll("\n", " ").replaceAll("\\s{2,}", " ");
-    }
-
-    private String cleanUpName(String raw) {
-        String name = raw.replace("йвна", "іївна").replace(".п", "Л").replaceAll("\\.", "");
-        name = checkForApostrophe(name);
-        name = checkForDmytrovych(name);
-        return name;
-    }
-
-    private String cleanUpScore(String raw) {
-        raw = raw.replaceAll("-", "").replaceAll("б", "6").replaceAll(" ", "");
-        return validateScore(raw);
-    }
-
-    private String cleanUpCertificate(String raw) {
-        return raw.replaceAll("-", "").replaceAll(" ", "").replaceAll("б", "6");
-    }
-
-    private String cleanUpZno(String raw) {
-        String zno = validateZNO(raw);
-        String[] arr = zno.split(" ");
-        zno = "";
-        for (int i1 = 0; i1 < arr.length; i1++) {
-            if (arr[i1].contains("б")) arr[i1] = arr[i1].replace("б", "6");
-            zno += arr[i1] + " ";
-        }
-        return zno;
-    }
-
-    private String cleanUpExam(String raw) {
-        String exam;
-        if (raw.length() < 5) {
-            exam = raw.replace("Г", "-");
-        } else {
-            exam = raw;
-        }
-        return exam;
-    }
-
-    private String insertDot(String str) {
-        String wholeNumber = str.substring(0, 3);
-        String fraction = str.substring(3, str.length());
-        return wholeNumber + "." + fraction;
-    }
-
-    private String checkForApostrophe(String raw) {
-        int yIndex = raw.indexOf("є") > 1 ? raw.indexOf("є") : (raw.indexOf("ю") > 1 ? raw.indexOf("ю") :
-                (raw.indexOf("я") > 1 ? raw.indexOf("я") : (raw.indexOf("ї") > 1 ? raw.indexOf("ї") : -1)));
-        if (yIndex > 1) {
-            String beforeY = raw.substring(0, yIndex).trim();
-            String lastChar = beforeY.substring(beforeY.length() - 1);
-
-            int consonantIndex = lastChar.contains("б") ? lastChar.indexOf("б") : (lastChar.contains("п") ?
-                    lastChar.indexOf("п") : (lastChar.contains("в") ? lastChar.indexOf("в") :
-                    (lastChar.contains("м") ? lastChar.indexOf("м") :
-                            (lastChar.contains("ф") ? lastChar.indexOf("ф") : -1))));
-            if (consonantIndex > -1) {
-                raw = insertApostrophe(raw, yIndex - 1, yIndex);
-            }
-        }
-        return raw;
-    }
-
-    private String checkForDmytrovych(String raw) {
-        String[] name = raw.split(" ");
-        if (new Character(name[2].charAt(0)).isLetter('Д') && raw.endsWith("трович")) {
-            return name[0] + " " + name[1] + "Дмитрович";
-        } else return raw;
-    }
-
-    private String insertApostrophe(String str, int x, int y) {
-        String firstPart = str.substring(0, x);
-        String secondPart = str.substring(y, str.length());
-        return firstPart + "'" + secondPart;
-    }
-
-    private String validateScore(String raw) {
-        if (!raw.contains(".")) {
-            raw = insertDot(raw);
-        } else if (raw.contains(",")) {
-            raw = insertDot(raw.replace(",", ""));
-        } else return raw;
-        return raw;
-    }
-
-    private String validateZNO(String raw) {
-        return raw.replace("Укрм", "Укр.м.").replace("Укрм.", "Укр.м.").replace("Укр.м..", "Укр.м.")
-                .replace("Англм.", "Англ.м.").replace("Англм", "Англ.м.").replace("О", "0")
-                .replace("Роєм", "Рос.м").replace("Рослчп", "Рос.м");
     }
 }
