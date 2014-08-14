@@ -4,34 +4,29 @@ import net.sourceforge.tess4j.TessAPI;
 import net.sourceforge.tess4j.Tesseract;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class Parser {
     private final String FULL_CHAR_WHITELIST = "`'0123456789.:-ІЇЄАБВГДЕЖЗИЙРСТУФХЦЧШЩЬКЛМНОПЯЮабвгдежзийклмнопрстуфхцчшщюяєіїь";
-    private final int[] CELL_BOUND = {221, 221, 221};
     private final int[] RECOMMENDED = {144, 238, 144};
     private final int[] ALSO_RECOMMENDED = {161, 248, 161};
     private final int[] ACCEPTED = {189, 210, 240};
     private final int[] ALSO_ACCEPTED = {180, 202, 235};
     private Tesseract tesseract;
-    private BufferedImage row;
     private int[][][] px;
     private Entrant entrant;
 
     public Parser(Entrant entrant, BufferedImage row, Tesseract tesseract) {
         this.entrant = entrant;
-        this.row = row;
         this.px = ImgProc.getPixelsRGB(row);
         this.tesseract = tesseract;
 
         setEntrantStatus();
-        parseCells(splitToCells(px));
+        parseCells(ImgProc.splitToCells(px, row));
     }
 
     public Entrant getEntrant() {
@@ -61,7 +56,7 @@ public class Parser {
 
     private BufferedImage processNumberCell(BufferedImage cell, int cellIndex) {
         if (cellIndex == 0 || cellIndex > 5) {
-            return ImgProc.scale(cropNumberCell(ImgProc.makeGreyScale(cell)), 2);
+            return ImgProc.scale(ImgProc.cropNumberCell(ImgProc.makeGreyScale(cell)), 2);
         } else return cell;
     }
 
@@ -153,36 +148,5 @@ public class Parser {
                 break;
             }
         }
-    }
-
-    private List<BufferedImage> splitToCells(int[][][] px) {
-        List<BufferedImage> cells = new ArrayList<>();
-        List<Integer> pxToCrop = getCellCoords(px);
-        int pointX = 0;
-        int cellWidth = 0;
-
-        for (int i = 0; i < pxToCrop.size(); i++) {
-            int columnBoundPos = pxToCrop.get(i);
-            if (i > 0) pointX += cellWidth;
-            cellWidth = columnBoundPos - pointX;
-            BufferedImage cell = ImgProc.crop(row, new Point(pointX, 0), new Rectangle(cellWidth, ImgProc.ROW_HEIGHT));
-            cells.add(cell);
-        }
-
-        return cells;
-    }
-
-    private List<Integer> getCellCoords(int[][][] px) {
-        List<Integer> indexesToCrop = new ArrayList<>();
-        for (int x = 0; x < px.length; x++) {
-            if (Arrays.equals(px[x][32], CELL_BOUND)) {
-                indexesToCrop.add(x);
-            }
-        }
-        return indexesToCrop;
-    }
-
-    private BufferedImage cropNumberCell(BufferedImage numberCell) {
-        return numberCell.getSubimage(0, 22, numberCell.getWidth(), 15);
     }
 }

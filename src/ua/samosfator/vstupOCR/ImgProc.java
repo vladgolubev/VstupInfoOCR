@@ -14,9 +14,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ImgProc {
+    private static final int[] CELL_BOUND = {221, 221, 221};
     public static final int ROW_HEIGHT = 58;
     private int width;
     private int height;
@@ -130,5 +132,36 @@ public class ImgProc {
         };
 
         return rgb;
+    }
+
+    public static BufferedImage cropNumberCell(BufferedImage numberCell) {
+        return numberCell.getSubimage(0, 22, numberCell.getWidth(), 15);
+    }
+
+    public static List<BufferedImage> splitToCells(int[][][] px, BufferedImage row) {
+        List<BufferedImage> cells = new ArrayList<>();
+        List<Integer> pxToCrop = getCellCoords(px);
+        int pointX = 0;
+        int cellWidth = 0;
+
+        for (int i = 0; i < pxToCrop.size(); i++) {
+            int columnBoundPos = pxToCrop.get(i);
+            if (i > 0) pointX += cellWidth;
+            cellWidth = columnBoundPos - pointX;
+            BufferedImage cell = ImgProc.crop(row, new Point(pointX, 0), new Rectangle(cellWidth, ImgProc.ROW_HEIGHT));
+            cells.add(cell);
+        }
+
+        return cells;
+    }
+
+    public static List<Integer> getCellCoords(int[][][] px) {
+        List<Integer> indexesToCrop = new ArrayList<>();
+        for (int x = 0; x < px.length; x++) {
+            if (Arrays.equals(px[x][32], CELL_BOUND)) {
+                indexesToCrop.add(x);
+            }
+        }
+        return indexesToCrop;
     }
 }
