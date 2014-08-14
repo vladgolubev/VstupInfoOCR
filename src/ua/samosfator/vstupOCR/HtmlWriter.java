@@ -84,22 +84,27 @@ public class HtmlWriter {
     private static final String RECOMMENDED_COLOR = "lightgreen";
     private static final String WHITE_COLOR = "#fff";
 
+    private static boolean ENTRANT_RECOMMENDED;
+    private static boolean ENTRANT_ACCEPTED;
+
     public static void createHtml(List<Entrant> entrants, String filename) {
         html += HEAD + BEFORE_TR;
         for (Entrant entrant : entrants) {
+            ENTRANT_RECOMMENDED = entrant.isRecommended();
+            ENTRANT_ACCEPTED = entrant.isAccepted();
             html += "<tr>";
-            insertTD(entrant, String.valueOf(entrant.getNumber()));
-            insertTD(entrant, entrant.getName());
-            insertTD(entrant, entrant.getScore());
-            insertTD(entrant, entrant.getCertificate());
-            insertTD(entrant, entrant.getZno());
-            insertTD(entrant, entrant.getExam());
-            insertTD(entrant, entrant.getOlympiad());
-            insertTD(entrant, entrant.getExtraPoints());
-            insertTD(entrant, entrant.getPk());
-            insertTD(entrant, entrant.getP4());
-            insertTD(entrant, entrant.getTarget());
-            insertTD(entrant, entrant.getOriginals());
+            insertTD(String.valueOf(entrant.getNumber()));
+            insertTD(entrant.getName());
+            insertTD(entrant.getScore());
+            insertTD(entrant.getCertificate());
+            insertTD(entrant.getZno());
+            insertTD(entrant.getExam());
+            insertTD(entrant.getOlympiad());
+            insertTD(entrant.getExtraPoints());
+            insertTD(entrant.getPk());
+            insertTD(entrant.getP4());
+            insertTD(entrant.getTarget());
+            insertTD(entrant.getOriginals());
             html += "</tr>";
         }
         html += AFTER_TR;
@@ -110,11 +115,11 @@ public class HtmlWriter {
         }
     }
 
-    private static void insertTD(Entrant entrant, String text) {
+    private static void insertTD(String text) {
         html += "<td style=\"background:";
-        if (entrant.isRecommended()) {
+        if (ENTRANT_RECOMMENDED) {
             html += RECOMMENDED_COLOR;
-        } else if (entrant.isAccepted()) {
+        } else if (ENTRANT_ACCEPTED) {
             html += ACCEPTED_COLOR;
         } else html += WHITE_COLOR;
         html += "\">" + text + "</td>";
